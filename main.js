@@ -1,7 +1,7 @@
 (function () {
   var nav = document.getElementById("nav");
-  var video = document.getElementById("hero-video");
-  var source = document.getElementById("hero-source");
+  var video = document.getElementById("chop-video");
+  var source = document.getElementById("chop-source");
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function onScroll() {
@@ -21,6 +21,9 @@
     }
     var playPromise = video.play();
     if (playPromise && playPromise.catch) playPromise.catch(function () {});
+  } else if (video && reduce) {
+    video.removeAttribute("autoplay");
+    video.pause();
   }
 
   if ("IntersectionObserver" in window) {
@@ -35,50 +38,5 @@
     document.querySelectorAll(".inview").forEach(function (el) { io.observe(el); });
   } else {
     document.querySelectorAll(".inview").forEach(function (el) { el.classList.add("is-in"); });
-  }
-
-  var lightbox = document.getElementById("lightbox");
-  if (lightbox) {
-    var frame = lightbox.querySelector("img");
-    var closeBtn = lightbox.querySelector(".lightbox-close");
-    var lastFocus = null;
-
-    function openBox(src, alt) {
-      lastFocus = document.activeElement;
-      frame.src = src;
-      frame.alt = alt || "";
-      lightbox.hidden = false;
-      requestAnimationFrame(function () { lightbox.classList.add("is-open"); });
-      closeBtn.focus();
-      document.addEventListener("keydown", onKey);
-    }
-
-    function closeBox() {
-      lightbox.classList.remove("is-open");
-      document.removeEventListener("keydown", onKey);
-      setTimeout(function () {
-        if (!lightbox.classList.contains("is-open")) {
-          lightbox.hidden = true;
-          frame.removeAttribute("src");
-        }
-      }, 300);
-      if (lastFocus && lastFocus.focus) lastFocus.focus();
-    }
-
-    function onKey(e) {
-      if (e.key === "Escape") closeBox();
-    }
-
-    document.querySelectorAll(".shot").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var img = btn.querySelector("img");
-        openBox(btn.getAttribute("data-full") || (img && img.currentSrc), img ? img.alt : "");
-      });
-    });
-
-    closeBtn.addEventListener("click", closeBox);
-    lightbox.addEventListener("click", function (e) {
-      if (e.target === lightbox) closeBox();
-    });
   }
 })();
